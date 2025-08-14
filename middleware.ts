@@ -33,13 +33,13 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith("/login") &&
-    !request.nextUrl.pathname.startsWith("/signup") &&
-    request.nextUrl.pathname !== "/"
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
+  const publicRoutes = ["/", "/login", "/signup", "/search", "/product", "/cart"]
+  const isPublicRoute = publicRoutes.some(
+    (route) => request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + "/"),
+  )
+
+  if (!user && !isPublicRoute && request.nextUrl.pathname.startsWith("/admin")) {
+    // Only redirect to login for admin routes when not authenticated
     const url = request.nextUrl.clone()
     url.pathname = "/login"
     return NextResponse.redirect(url)

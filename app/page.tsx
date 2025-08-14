@@ -13,6 +13,7 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("")
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [showCategories, setShowCategories] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -33,6 +34,22 @@ export default function Home() {
     await signOut()
   }
 
+  const handleCategoryClick = (category: string) => {
+    router.push(`/search?q=${encodeURIComponent(category)}`)
+    setShowCategories(false)
+  }
+
+  const categories = [
+    { name: "Headphones", icon: "🎧" },
+    { name: "Laptops", icon: "💻" },
+    { name: "Books", icon: "📚" },
+    { name: "Shoes", icon: "👟" },
+    { name: "Furniture", icon: "🪑" },
+    { name: "Tech", icon: "📱" },
+    { name: "Phones", icon: "📞" },
+    { name: "Watches", icon: "⌚" },
+  ]
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -48,9 +65,31 @@ export default function Home() {
 
             {/* Navigation */}
             <nav className="hidden md:flex space-x-8">
-              <div className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 cursor-pointer">
-                <span>Categories</span>
-                <ChevronDown className="h-4 w-4" />
+              <div className="relative">
+                <div
+                  className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 cursor-pointer"
+                  onClick={() => setShowCategories(!showCategories)}
+                >
+                  <span>Categories</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${showCategories ? "rotate-180" : ""}`} />
+                </div>
+
+                {showCategories && (
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
+                    <div className="py-2">
+                      {categories.map((category) => (
+                        <button
+                          key={category.name}
+                          onClick={() => handleCategoryClick(category.name)}
+                          className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex items-center space-x-3"
+                        >
+                          <span className="text-lg">{category.icon}</span>
+                          <span>{category.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               <a href="#" className="text-gray-700 hover:text-gray-900">
                 Deals
@@ -184,6 +223,176 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* Featured Products Section */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <h2 className="text-2xl font-bold text-gray-900 mb-8">Featured Products</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+            <img src="/premium-wireless-headphones.png" alt="Premium Headphones" className="w-full h-48 object-cover" />
+            <div className="p-6 h-52 grid grid-rows-[auto_1fr_auto] gap-3">
+              <h3 className="text-lg font-semibold text-gray-900">Premium Wireless Headphones</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">
+                Experience crystal-clear audio with our top-rated headphones
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-bold text-amber-700">$129.99</span>
+                <Button className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2">Add to Cart</Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+            <img src="/modern-laptop-computer.png" alt="Modern Laptop" className="w-full h-48 object-cover" />
+            <div className="p-6 h-52 grid grid-rows-[auto_1fr_auto] gap-3">
+              <h3 className="text-lg font-semibold text-gray-900">Ultra-Thin Laptop</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">Powerful performance in a sleek, portable design</p>
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-bold text-amber-700">$899.99</span>
+                <Button className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2">Add to Cart</Button>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+            <img src="/stylish-running-shoes.png" alt="Running Shoes" className="w-full h-48 object-cover" />
+            <div className="p-6 h-52 grid grid-rows-[auto_1fr_auto] gap-3">
+              <h3 className="text-lg font-semibold text-gray-900">Athletic Running Shoes</h3>
+              <p className="text-gray-600 text-sm leading-relaxed">Comfort and style for your active lifestyle</p>
+              <div className="flex items-center justify-between">
+                <span className="text-2xl font-bold text-amber-700">$79.99</span>
+                <Button className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2">Add to Cart</Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Why Choose Us Section */}
+      <section className="bg-white py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose Swiftly?</h2>
+            <p className="text-lg text-gray-600">We're committed to providing the best shopping experience</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🚚</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Fast Delivery</h3>
+              <p className="text-gray-600">Get your orders delivered quickly with our express shipping options</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">🛡️</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Secure Shopping</h3>
+              <p className="text-gray-600">Shop with confidence knowing your data is protected</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-amber-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">💎</span>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Quality Products</h3>
+              <p className="text-gray-600">Carefully curated products from trusted brands</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Section */}
+      <section className="bg-amber-700 py-16">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl font-bold text-white mb-4">Stay Updated</h2>
+          <p className="text-amber-100 text-lg mb-8">Subscribe to get special offers, free giveaways, and updates</p>
+          <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <Input type="email" placeholder="Enter your email" className="flex-1 bg-white border-0" />
+            <Button className="bg-white text-amber-700 hover:bg-gray-100 px-8">Subscribe</Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gray-900 text-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div>
+              <h3 className="text-2xl font-bold text-amber-400 mb-4">Swiftly</h3>
+              <p className="text-gray-400">Your trusted partner for quality products and exceptional service.</p>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <a href="#" className="hover:text-white">
+                    About Us
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Contact
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    FAQ
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Support
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Categories</h4>
+              <ul className="space-y-2 text-gray-400">
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Electronics
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Fashion
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Home & Garden
+                  </a>
+                </li>
+                <li>
+                  <a href="#" className="hover:text-white">
+                    Sports
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-lg font-semibold mb-4">Follow Us</h4>
+              <div className="flex space-x-4">
+                <a href="#" className="text-gray-400 hover:text-white">
+                  Facebook
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white">
+                  Twitter
+                </a>
+                <a href="#" className="text-gray-400 hover:text-white">
+                  Instagram
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+            <p>&copy; 2025 Swiftly. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+
+      {showCategories && <div className="fixed inset-0 z-40" onClick={() => setShowCategories(false)} />}
     </div>
   )
 }

@@ -20,6 +20,7 @@ export default function ProductPage({
   const [searchInput, setSearchInput] = useState("")
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
+  const [showCategories, setShowCategories] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
@@ -52,6 +53,22 @@ export default function ProductPage({
   const handleSignOut = async () => {
     await signOut()
   }
+
+  const handleCategoryClick = (category: string) => {
+    router.push(`/search?q=${encodeURIComponent(category)}`)
+    setShowCategories(false)
+  }
+
+  const categories = [
+    { name: "Headphones", icon: "🎧" },
+    { name: "Laptops", icon: "💻" },
+    { name: "Books", icon: "📚" },
+    { name: "Shoes", icon: "👟" },
+    { name: "Furniture", icon: "🪑" },
+    { name: "Tech", icon: "📱" },
+    { name: "Phones", icon: "📞" },
+    { name: "Watches", icon: "⌚" },
+  ]
 
   const getRelatedProducts = (category: string) => {
     const relatedProductsMap: { [key: string]: any[] } = {
@@ -117,9 +134,31 @@ export default function ProductPage({
 
             {/* Navigation */}
             <nav className="hidden md:flex space-x-8">
-              <div className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 cursor-pointer">
-                <span>Categories</span>
-                <ChevronDown className="h-4 w-4" />
+              <div className="relative">
+                <div
+                  className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 cursor-pointer"
+                  onClick={() => setShowCategories(!showCategories)}
+                >
+                  <span>Categories</span>
+                  <ChevronDown className={`h-4 w-4 transition-transform ${showCategories ? "rotate-180" : ""}`} />
+                </div>
+
+                {showCategories && (
+                  <div className="absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-[100]">
+                    <div className="py-2">
+                      {categories.map((category) => (
+                        <button
+                          key={category.name}
+                          onClick={() => handleCategoryClick(category.name)}
+                          className="w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100 hover:text-gray-900 flex items-center space-x-3 transition-colors"
+                        >
+                          <span className="text-lg">{category.icon}</span>
+                          <span>{category.name}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
               <a href="#" className="text-gray-700 hover:text-gray-900">
                 Deals
@@ -275,6 +314,8 @@ export default function ProductPage({
           </div>
         </div>
       </div>
+
+      {showCategories && <div className="fixed inset-0 z-[90]" onClick={() => setShowCategories(false)} />}
     </div>
   )
 }
