@@ -7,9 +7,9 @@ import { Search, ShoppingCart, User, ChevronDown, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { getCurrentUser, signOut } from "@/lib/auth-utils"
+// import { getCurrentUser, signOut } from "@/lib/auth-utils"
 
 export default function SearchResultsPage({
   searchParams,
@@ -18,16 +18,16 @@ export default function SearchResultsPage({
 }) {
   const searchQuery = searchParams.q || "Products"
   const [searchInput, setSearchInput] = useState(searchQuery)
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  // const [user, setUser] = useState<any>(null)
+  // const [loading, setLoading] = useState(true)
   const router = useRouter()
 
-  useEffect(() => {
-    getCurrentUser().then((userData) => {
-      setUser(userData)
-      setLoading(false)
-    })
-  }, [])
+  // useEffect(() => {
+  //   getCurrentUser().then((userData) => {
+  //     setUser(userData)
+  //     setLoading(false)
+  //   })
+  // }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,9 +36,9 @@ export default function SearchResultsPage({
     }
   }
 
-  const handleSignOut = async () => {
-    await signOut()
-  }
+  // const handleSignOut = async () => {
+  //   await signOut()
+  // }
 
   const getProductsForQuery = (query: string) => {
     const lowerQuery = query.toLowerCase()
@@ -164,7 +164,7 @@ export default function SearchResultsPage({
           price: "$180.00",
           description: "Premium Running Sneakers",
           image: "/adidas-ultraboost.png",
-          rating: 5,
+          rating: 4,
         },
         {
           id: 3,
@@ -303,26 +303,13 @@ export default function SearchResultsPage({
                   <Search className="h-4 w-4 text-gray-400" />
                 </button>
               </form>
-              {loading ? (
-                <div className="flex items-center space-x-1 text-gray-700">
-                  <User className="h-5 w-5" />
-                </div>
-              ) : user ? (
-                <button
-                  onClick={handleSignOut}
-                  className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 cursor-pointer"
-                >
-                  <User className="h-5 w-5" />
-                </button>
-              ) : (
-                <Link
-                  href="/login"
-                  className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 cursor-pointer"
-                >
-                  <User className="h-5 w-5" />
-                  <span className="hidden sm:inline">Account</span>
-                </Link>
-              )}
+              <Link
+                href="/login"
+                className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 cursor-pointer"
+              >
+                <User className="h-5 w-5" />
+                <span className="hidden sm:inline">Account</span>
+              </Link>
               <Link
                 href="/cart"
                 className="flex items-center space-x-1 text-gray-700 hover:text-gray-900 cursor-pointer"
