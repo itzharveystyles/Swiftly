@@ -8,6 +8,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { getCurrentUser, signOut } from "@/lib/auth-utils"
+import { addToCart } from "@/lib/cart-utils"
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -37,6 +38,11 @@ export default function Home() {
   const handleCategoryClick = (category: string) => {
     router.push(`/search?q=${encodeURIComponent(category)}`)
     setShowCategories(false)
+  }
+
+  const handleAddToCart = (product: { id: string; name: string; price: number; image: string; category?: string }) => {
+    addToCart(product)
+    alert(`${product.name} added to cart!`)
   }
 
   const categories = [
@@ -229,41 +235,112 @@ export default function Home() {
         <h2 className="text-2xl font-bold text-gray-900 mb-8">Featured Products</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-            <img src="/premium-wireless-headphones.png" alt="Premium Headphones" className="w-full h-48 object-cover" />
-            <div className="p-6 h-52 grid grid-rows-[auto_1fr_auto] gap-3">
-              <h3 className="text-lg font-semibold text-gray-900">Premium Wireless Headphones</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">
-                Experience crystal-clear audio with our top-rated headphones
-              </p>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-amber-700">$129.99</span>
-                <Button className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2">Add to Cart</Button>
+            <Link href="/product/headphones-premium" className="block">
+              <img
+                src="/premium-wireless-headphones.png"
+                alt="Premium Headphones"
+                className="w-full h-48 object-cover cursor-pointer"
+              />
+              <div className="p-6 h-52 grid grid-rows-[auto_1fr_auto] gap-3">
+                <h3 className="text-lg font-semibold text-gray-900 cursor-pointer hover:text-amber-700">
+                  Premium Wireless Headphones
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Experience crystal-clear audio with our top-rated headphones
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold text-amber-700">$129.99</span>
+                  <Button
+                    className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleAddToCart({
+                        id: "headphones-premium",
+                        name: "Premium Wireless Headphones",
+                        price: 129.99,
+                        image: "/premium-wireless-headphones.png",
+                        category: "Headphones",
+                      })
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-            <img src="/modern-laptop-computer.png" alt="Modern Laptop" className="w-full h-48 object-cover" />
-            <div className="p-6 h-52 grid grid-rows-[auto_1fr_auto] gap-3">
-              <h3 className="text-lg font-semibold text-gray-900">Ultra-Thin Laptop</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">Powerful performance in a sleek, portable design</p>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-amber-700">$899.99</span>
-                <Button className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2">Add to Cart</Button>
+            <Link href="/product/laptop-ultra-thin" className="block">
+              <img
+                src="/modern-laptop-computer.png"
+                alt="Modern Laptop"
+                className="w-full h-48 object-cover cursor-pointer"
+              />
+              <div className="p-6 h-52 grid grid-rows-[auto_1fr_auto] gap-3">
+                <h3 className="text-lg font-semibold text-gray-900 cursor-pointer hover:text-amber-700">
+                  Ultra-Thin Laptop
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">
+                  Powerful performance in a sleek, portable design
+                </p>
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold text-amber-700">$899.99</span>
+                  <Button
+                    className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleAddToCart({
+                        id: "laptop-ultra-thin",
+                        name: "Ultra-Thin Laptop",
+                        price: 899.99,
+                        image: "/modern-laptop-computer.png",
+                        category: "Laptops",
+                      })
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
-            <img src="/stylish-running-shoes.png" alt="Running Shoes" className="w-full h-48 object-cover" />
-            <div className="p-6 h-52 grid grid-rows-[auto_1fr_auto] gap-3">
-              <h3 className="text-lg font-semibold text-gray-900">Athletic Running Shoes</h3>
-              <p className="text-gray-600 text-sm leading-relaxed">Comfort and style for your active lifestyle</p>
-              <div className="flex items-center justify-between">
-                <span className="text-2xl font-bold text-amber-700">$79.99</span>
-                <Button className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2">Add to Cart</Button>
+            <Link href="/product/shoes-athletic-running" className="block">
+              <img
+                src="/stylish-running-shoes.png"
+                alt="Running Shoes"
+                className="w-full h-48 object-cover cursor-pointer"
+              />
+              <div className="p-6 h-52 grid grid-rows-[auto_1fr_auto] gap-3">
+                <h3 className="text-lg font-semibold text-gray-900 cursor-pointer hover:text-amber-700">
+                  Athletic Running Shoes
+                </h3>
+                <p className="text-gray-600 text-sm leading-relaxed">Comfort and style for your active lifestyle</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold text-amber-700">$79.99</span>
+                  <Button
+                    className="bg-amber-700 hover:bg-amber-800 text-white px-4 py-2"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleAddToCart({
+                        id: "shoes-athletic-running",
+                        name: "Athletic Running Shoes",
+                        price: 79.99,
+                        image: "/stylish-running-shoes.png",
+                        category: "Shoes",
+                      })
+                    }}
+                  >
+                    Add to Cart
+                  </Button>
+                </div>
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </section>

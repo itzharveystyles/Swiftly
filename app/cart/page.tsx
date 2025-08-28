@@ -9,6 +9,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { getCurrentUser, signOut } from "@/lib/auth-utils"
+import { getCartItems, updateCartItemQuantity, removeFromCart } from "@/lib/cart-utils"
 
 export default function CartPage() {
   const [searchInput, setSearchInput] = useState("")
@@ -17,6 +18,7 @@ export default function CartPage() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [showCategories, setShowCategories] = useState(false)
+  const [cartItems, setCartItems] = useState<any[]>([])
   const router = useRouter()
 
   useEffect(() => {
@@ -24,6 +26,20 @@ export default function CartPage() {
       setUser(userData)
       setLoading(false)
     })
+  }, [])
+
+  useEffect(() => {
+    const loadCartItems = () => {
+      const items = getCartItems()
+      setCartItems(items)
+    }
+
+    loadCartItems()
+
+    const handleCartUpdate = () => loadCartItems()
+    window.addEventListener("cartUpdated", handleCartUpdate)
+
+    return () => window.removeEventListener("cartUpdated", handleCartUpdate)
   }, [])
 
   const handleSearch = (e: React.FormEvent) => {
@@ -53,16 +69,13 @@ export default function CartPage() {
     { name: "Watches", icon: "⌚" },
   ]
 
-  // Sample cart item - in a real app this would come from state management
-  const cartItems = [
-    {
-      id: 1,
-      name: "Sony WH-CH720N",
-      price: 68.0,
-      quantity: 1,
-      image: "/white-headphones-2.png",
-    },
-  ]
+  const handleQuantityChange = (id: string, newQuantity: number) => {
+    updateCartItemQuantity(id, newQuantity)
+  }
+
+  const handleRemoveItem = (id: string) => {
+    removeFromCart(id)
+  }
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
   const shipping = 0 // Free shipping
@@ -177,101 +190,144 @@ export default function CartPage() {
                 <span className="text-gray-600">{cartItems.length} Item(s)</span>
               </div>
 
-              {/* Cart Table Header */}
-              <div className="grid grid-cols-4 gap-4 pb-4 border-b border-gray-200 text-sm font-medium text-gray-700">
-                <div>Product Details</div>
-                <div className="text-center">Price</div>
-                <div className="text-center">Quantity</div>
-                <div className="text-center">Subtotal</div>
-              </div>
-
-              {/* Cart Items */}
-              <div className="space-y-4 mt-4">
-                {cartItems.map((item) => (
-                  <div key={item.id} className="grid grid-cols-4 gap-4 items-center py-4">
-                    {/* Product Details */}
-                    <div className="flex items-center space-x-4">
-                      <div className="w-16 h-16 bg-gray-100 rounded-lg p-2">
-                        <Image
-                          src={item.image || "/placeholder.svg"}
-                          alt={item.name}
-                          width={64}
-                          height={64}
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900">{item.name}</h3>
-                      </div>
-                    </div>
-
-                    {/* Price */}
-                    <div className="text-center font-medium text-gray-900">${item.price.toFixed(2)}</div>
-
-                    {/* Quantity */}
-                    <div className="text-center font-medium text-gray-900">{item.quantity}</div>
-
-                    {/* Subtotal */}
-                    <div className="text-center font-medium text-gray-900">
-                      ${(item.price * item.quantity).toFixed(2)}
-                    </div>
+              {cartItems.length === 0 ? (
+                <div className="text-center py-12">
+                  <ShoppingCart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
+                  <p className="text-gray-600 mb-6">Add some products to get started!</p>
+                  <Link href="/">
+                    <Button className="bg-amber-800 hover:bg-amber-900 text-white">Continue Shopping</Button>
+                  </Link>
+                </div>
+              ) : (
+                <>
+                  {/* Cart Table Header */}
+                  <div className="grid grid-cols-5 gap-4 pb-4 border-b border-gray-200 text-sm font-medium text-gray-700">
+                    <div>Product Details</div>
+                    <div className="text-center">Price</div>
+                    <div className="text-center">Quantity</div>
+                    <div className="text-center">Subtotal</div>
+                    <div className="text-center">Action</div>
                   </div>
-                ))}
-              </div>
+
+                  {/* Cart Items */}
+                  <div className="space-y-4 mt-4">
+                    {cartItems.map((item) => (
+                      <div key={item.id} className="grid grid-cols-5 gap-4 items-center py-4 border-b border-gray-100">
+                        {/* Product Details */}
+                        <div className="flex items-center space-x-4">
+                          <div className="w-16 h-16 bg-gray-100 rounded-lg p-2">
+                            <Image
+                              src={item.image || "/placeholder.svg"}
+                              alt={item.name}
+                              width={64}
+                              height={64}
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                          <div>
+                            <h3 className="font-medium text-gray-900">{item.name}</h3>
+                            {item.category && <p className="text-sm text-gray-500">{item.category}</p>}
+                          </div>
+                        </div>
+
+                        {/* Price */}
+                        <div className="text-center font-medium text-gray-900">${item.price.toFixed(2)}</div>
+
+                        {/* Quantity */}
+                        <div className="text-center">
+                          <div className="flex items-center justify-center space-x-2">
+                            <button
+                              onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
+                              className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600"
+                            >
+                              -
+                            </button>
+                            <span className="font-medium text-gray-900 w-8 text-center">{item.quantity}</span>
+                            <button
+                              onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
+                              className="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center text-gray-600"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Subtotal */}
+                        <div className="text-center font-medium text-gray-900">
+                          ${(item.price * item.quantity).toFixed(2)}
+                        </div>
+
+                        {/* Action */}
+                        <div className="text-center">
+                          <button
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="text-red-600 hover:text-red-800 font-medium"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
           {/* Order Summary */}
-          <div className="lg:col-span-1">
-            <div className="bg-amber-800 text-white rounded-lg p-6 space-y-6">
-              <h2 className="text-xl font-bold">Order Summary</h2>
+          {cartItems.length > 0 && (
+            <div className="lg:col-span-1">
+              <div className="bg-amber-800 text-white rounded-lg p-6 space-y-6">
+                <h2 className="text-xl font-bold">Order Summary</h2>
 
-              {/* Select Address */}
-              <div>
-                <label className="block text-sm font-medium mb-2">Select Address</label>
-                <Input
-                  type="text"
-                  placeholder="Enter your address"
-                  className="w-full bg-white text-gray-900 border-0"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                />
-              </div>
-
-              {/* Promo Code */}
-              <div>
-                <label className="block text-sm font-medium mb-2">Promo Code</label>
-                <Input
-                  type="text"
-                  placeholder="Enter promo code"
-                  className="w-full bg-white text-gray-900 border-0"
-                  value={promoCode}
-                  onChange={(e) => setPromoCode(e.target.value)}
-                />
-              </div>
-
-              {/* Order Breakdown */}
-              <div className="space-y-3 pt-4 border-t border-amber-700">
-                <div className="flex justify-between">
-                  <span>ITEMS {cartItems.length}</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                {/* Select Address */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Select Address</label>
+                  <Input
+                    type="text"
+                    placeholder="Enter your address"
+                    className="w-full bg-white text-gray-900 border-0"
+                    value={address}
+                    onChange={(e) => setAddress(e.target.value)}
+                  />
                 </div>
-                <div className="flex justify-between">
-                  <span>SHIPPING</span>
-                  <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
-                </div>
-                <div className="flex justify-between font-bold text-lg pt-2 border-t border-amber-700">
-                  <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
-                </div>
-              </div>
 
-              {/* Place Order Button */}
-              <Button className="w-full bg-white text-amber-800 hover:bg-gray-100 font-semibold py-3 rounded-lg">
-                Place Order
-              </Button>
+                {/* Promo Code */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Promo Code</label>
+                  <Input
+                    type="text"
+                    placeholder="Enter promo code"
+                    className="w-full bg-white text-gray-900 border-0"
+                    value={promoCode}
+                    onChange={(e) => setPromoCode(e.target.value)}
+                  />
+                </div>
+
+                {/* Order Breakdown */}
+                <div className="space-y-3 pt-4 border-t border-amber-700">
+                  <div className="flex justify-between">
+                    <span>ITEMS {cartItems.length}</span>
+                    <span>${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>SHIPPING</span>
+                    <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-lg pt-2 border-t border-amber-700">
+                    <span>Total</span>
+                    <span>${total.toFixed(2)}</span>
+                  </div>
+                </div>
+
+                {/* Place Order Button */}
+                <Button className="w-full bg-white text-amber-800 hover:bg-gray-100 font-semibold py-3 rounded-lg">
+                  Place Order
+                </Button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
