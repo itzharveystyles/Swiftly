@@ -7,9 +7,8 @@ import { Search, ShoppingCart, User, ChevronDown, Filter } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import Image from "next/image"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { getCurrentUser, signOut } from "@/lib/auth-utils"
 
 export default function SearchResultsPage({
   searchParams,
@@ -18,16 +17,28 @@ export default function SearchResultsPage({
 }) {
   const searchQuery = searchParams.q || "Products"
   const [searchInput, setSearchInput] = useState(searchQuery)
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+  const [showCategories, setShowCategories] = useState(false)
+  const [displayedCount, setDisplayedCount] = useState(12)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
 
   useEffect(() => {
-    getCurrentUser().then((userData) => {
-      setUser(userData)
-      setLoading(false)
-    })
-  }, [])
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowCategories(false)
+      }
+    }
+
+    if (showCategories) {
+      setTimeout(() => {
+        document.addEventListener("mousedown", handleClickOutside)
+      }, 0)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [showCategories])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,9 +47,21 @@ export default function SearchResultsPage({
     }
   }
 
-  const handleSignOut = async () => {
-    await signOut()
+  const handleCategoryClick = (category: string) => {
+    router.push(`/search?q=${encodeURIComponent(category)}`)
+    setShowCategories(false)
   }
+
+  const categories = [
+    { name: "Headphones", icon: "🎧" },
+    { name: "Laptops", icon: "💻" },
+    { name: "Books", icon: "📚" },
+    { name: "Shoes", icon: "👟" },
+    { name: "Furniture", icon: "🪑" },
+    { name: "Tech", icon: "📱" },
+    { name: "Phones", icon: "📞" },
+    { name: "Watches", icon: "⌚" },
+  ]
 
   const getProductsForQuery = (query: string) => {
     const lowerQuery = query.toLowerCase()
@@ -324,20 +347,15 @@ export default function SearchResultsPage({
           discount: "19% off",
         },
         {
-          id: 2,
-          name: "Adidas Ultraboost",
-          price: "$180.00",
-          description: "Premium Running Sneakers",
-          image: "/adidas-ultraboost.png",
+          id: 8,
+          name: "Gaming Laptop ROG",
+          price: "$1,799.00",
+          originalPrice: "$2,199.00",
+          description: "High-performance gaming laptop",
+          image: "/lenovo-thinkpad.png",
           rating: 5,
-        },
-        {
-          id: 3,
-          name: "Converse Chuck Taylor",
-          price: "$65.00",
-          description: "Classic High-Top Sneakers",
-          image: "/converse-chuck.png",
-          rating: 4,
+          reviews: 1567,
+          discount: "18% off",
         },
         {
           id: 9,
